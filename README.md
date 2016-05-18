@@ -1,10 +1,25 @@
-# quickrest
+# Quickrest
 
 **THIS PROJECT IS A WIP.**
 
-**The following represents the proposed API.  It does not currently work.**
+**The following represents the proposed API.  It has not been fully implemented.**
 
 A simple library for quickly building REST API clients.
+
+## Installation
+
+    npm install quickrest --save
+    bower install quickrest --save
+
+### Node/CommonJS
+```javascript
+var quickrest = require('quickrest')
+```
+
+### ES6 Module
+```javascript
+import quickrest from 'quickrest'
+```
 
 ## Features
 * Offers both a callback and promise-based API.
@@ -40,6 +55,7 @@ const api = quickrest({
     'users',
     'users/posts',
     'users/posts/comments',
+    'posts',
     'posts/comments',
     'comments',
     {
@@ -52,7 +68,7 @@ const api = quickrest({
 
 // callback interface
 // GET /users/9000
-api.users.get(9000, (err, {model, }) => console.log(err, model))
+api.users.get(9000, (err, ({model, })) => console.log(err, model))
 
 // promise interface
 // GET /users/9000
@@ -123,7 +139,7 @@ const api = quickrest({
    *
    * This is optional.
    *
-   * @see examples below.
+   * @see implemented examples below.
    * @example
    * // for only one version
    *   {
@@ -176,9 +192,11 @@ const api = quickrest({
   enableLogging: false,
 
   /**
-   * Describes the shape of the response for `list()` endpoints. Keys are parameters required by this lib, and their values represent the path through nested object keys to retrieve them.
-   * The path should be compatible with
-   * lodash's [_.at](https://*lodash.com/docs#at)
+   * Describes the shape of the response for `list()` endpoints.
+   *
+   * Keys are parameters required by this lib, and their values represent the path through nested object keys to retrieve them.
+   *
+   * The path should be compatible with lodash's [_.at](https://*lodash.com/docs#at)
    *
    * The shape expected by default looks like:
    * @example
@@ -207,7 +225,7 @@ const api = quickrest({
    *
    * This is optional.
    *
-   * The headers displayed below are the set by default.
+   * The headers displayed below are set by default.
    *
    * @type {Object}
    */
@@ -235,6 +253,11 @@ const api = quickrest({
   },
   endpoints: [
     'user', // automatically expanded to 'users'.  use an object for a more detailed description.
+    'users/posts',
+    'users/posts/comments',
+    'posts',
+    'posts/comments',
+    'comments',
     'posts',
     'comments',
     {
