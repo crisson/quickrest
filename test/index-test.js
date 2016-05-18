@@ -1,8 +1,8 @@
 describe('quickrest', function () {
   it('is a function')
 
-  it('returns an object')
-  it('throws an error if `endpoints` is an empty array')
+  it('should return an object')
+  it('should throw an error if `endpoints` is undefined or an empty array')
 
-  it('throws an error if `root` is undefined')
+  it('should throw an error if `root` is undefined')
 })
