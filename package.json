@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "a simple REST API client library factory",
   "main": "lib/index.js",
+  "repository": "https://github.com/crisson/quickrest.git",
   "scripts": {
     "test": "mocha",
     "compile": "babel src -d lib -s",
@@ -11,8 +12,9 @@
   "keywords": [
     "REST",
     "API",
-    "browser",
-    "client"
+    "ajax",
+    "client",
+    "request"
   ],
   "author": "Crisson Jno-Charles <crissonjc@gmail.com>",
   "license": "MIT",
