@@ -1,0 +1,25 @@
+{
+  "name": "quickrest",
+  "version": "0.0.1",
+  "description": "a simple REST API client library factory",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "REST",
+    "API",
+    "browser",
+    "client"
+  ],
+  "author": "Crisson Jno-Charles <crissonjc@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "lodash.camelcase": "4.1.1"
+  },
+  "devDependencies": {
+    "babel-cli": "6.9.0",
+    "babel-core": "6.9.0",
+    "babel-preset-es2015": "6.9.0"
+  }
+}
