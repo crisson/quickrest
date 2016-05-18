@@ -6,6 +6,13 @@
 
 A simple library for quickly building REST API clients.
 
+## Features
+* Offers both a callback and promise-based API.
+* Bring your own `Promise` and request libraries.
+* Makes reasonable assumptions about the structure of your REST API.
+* Supports complex API versions.
+* Offers a fluent API for requesting nested resources.
+
 ## Installation
 
     npm install quickrest --save
@@ -21,12 +28,6 @@ var quickrest = require('quickrest')
 import quickrest from 'quickrest'
 ```
 
-## Features
-* Offers both a callback and promise-based API.
-* Bring your own `Promise` and request libraries.
-* Makes reasonable assumptions about the structure of your REST API.
-* Supports complex API versions.
-* Offers a fluent API for requesting nested resources.
 
 ## Simple Example
 
@@ -94,7 +95,8 @@ api.users.posts.comments.create(9000, 3, {title: '...', content: 'something'})
 
 // create doubly-nested resource, fluent syntax
 // POST /users/9000/posts/3/comments
-api.users(9000)
+const fluentapi = api.fluent();
+fluentapi.users(9000)
   .posts(3)
   .comments
   .create({title: '...', content: 'something'})
@@ -110,7 +112,7 @@ api.v2.users.get(9000)
   .catch(console.error.bind(console))
 
 // the backward-incompatible and deprecated comments API
-// /comments
+// PUT /comments
 api.comments.create({post_id: 3, data: 'something'})
 
 // this endpoint is distinct from api.comments
@@ -247,12 +249,17 @@ const api = quickrest({
 
     const nh = {Authorization: `Bearer ${token}`}
 
+    return Promise.resolve({headers: nh, params: np})
     // or return {headers: nh, params: np} which becomes Promise.resolve(...)
     // or return cb(null, {headers: nh, params: np})
-    // or return Promise.resolve({headers: nh, params: np})
   },
+
+  /**
+   * An array of the endpoints of your REST API.
+   * @type {Array}
+   */
   endpoints: [
-    'user', // automatically expanded to 'users'.  use an object for a more detailed description.
+    'user', // automatically expanded to 'users'.  use an object for a singular resource name.
     'users/posts',
     'users/posts/comments',
     'posts',
@@ -269,49 +276,5 @@ const api = quickrest({
 })
 ```
 
-#### Usage example
-```javascript
-// POST /users
-api.users.create({email: 'jane.smith@example.com'}, (err, resp) => {
-  if (err) {
-    console.error(err)
-    return;
-  }
-
-  const { model, } = resp;
-})
-
-// OR
-
-// POST /users
-api.users.create({email: 'jane.smith@example.com'})
-  .then(({model, }) => console.info(model))
-  .catch(console.error.bind(console))
-
-// /v2/users/9000
-api.v2.users.get(9000)
-
-api.v2.comments.create({post_id: 4000, data: 'something'})
-
-// /v3/comments/4000
-// this endpoint is distinct from api.v2.comments
-api.v3.comments.create({post_id: 4000, content: 'something'})
-```
-
-## Configuration
-
-**root** (required) - the base url for your REST API.
-
-**collection** -
-```json
- {
-  "page": 1,
-  "rpp": 20,
-  "items": [
-    ...
-  ],
-  "query": ""
- }
-```
-
-**beforeEach** -
+## License
+MIT
