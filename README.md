@@ -95,8 +95,7 @@ api.users.posts.comments.create(9000, 3, {title: '...', content: 'something'})
 
 // create doubly-nested resource, fluent syntax
 // POST /users/9000/posts/3/comments
-const fluentapi = api.fluent();
-fluentapi.users(9000)
+api.users(9000)
   .posts(3)
   .comments
   .create({title: '...', content: 'something'})
