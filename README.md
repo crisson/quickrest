@@ -2,7 +2,7 @@
 
 A simple library for quickly building REST API clients.
 
-***This library is a WIP.  Not all features, such as `beforeEach` have been implemented***
+***This library is a WIP.  Not all features, such as `beforeEach`, have been implemented***
 
 ## Features
 * Offers both a callback and promise-based API.
