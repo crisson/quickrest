@@ -2,7 +2,7 @@
 
 A simple library for quickly building REST API clients.
 
-***This library is a WIP.  Not all features, such as `beforeEach` have been implemented***
+***This library is a WIP.  Not all features, such as `beforeEach`, have been implemented***
 
 ## Features
 * Offers both a callback and promise-based API.
@@ -57,7 +57,7 @@ const api = quickrest({
   promise: bluebird,
   request: (url, method, params, query, headers, cb) => {
     // since qwest returns a promise, there's no need to invoke the cb
-    return qwest[method].bind(qwest, method)(url, params, headers)
+    return qwest[method].bind(qwest)(url, params, {headers})
   },
   async beforeEach(params, headers, cb){
     const token = await tokenStore.getTokenForUser(DEFAULT_USER_ID)
