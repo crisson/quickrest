@@ -108,8 +108,8 @@ api.users(9000).posts(3).comments.create({title: '...', content: 'something'})
 // DELETE /users/9000/posts/3
 api.users(9000).posts(3).del()
 
-// same as api.users.create(...), since v2 of this route was not defined above
-// GET /v1/users
+// api versioning via url
+// GET /v2/users
 api.v2().users(9000).get()
   .then(({model, }) => console.info(model))
   .catch(console.error.bind(console))
@@ -284,6 +284,10 @@ const api = quickrest({
     {
       resource: 'comments',
       createMethod: 'put', // put will be used for creation and update
+      headers: {
+        'X-API-VERSION': 'example.v2',
+        'Accept': 'application/vnd+example.comments+json'
+      }
     }
   ]
 })
