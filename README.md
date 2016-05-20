@@ -80,7 +80,7 @@ const api = quickrest({
 
 // callback interface
 // GET /users/9000
-api.users(9000).get((err, ({model, })) => console.log(err, model))
+api.users(9000).get((err, resp) => console.log(err, resp.model))
 
 // promise interface
 // GET /users/9000
