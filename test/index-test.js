@@ -106,7 +106,7 @@ describe('quickrest', function () {
     })
   })
 
-  describe('request', () => {
+  describe('config.request', () => {
     beforeEach(() => {
       api = quickrest({root, endpoints})
     })
@@ -251,11 +251,47 @@ describe('quickrest', function () {
     })
   })
 
-  describe('versions', () => {
+  describe('config.versions', () => {
     it('allows you to gracefully evolve an API', () => {
       api = quickrest({endpoints, root, versions: 'v1'})
       expect(api.v1).to.exist
       expect(api.v1().users).to.exist
+    })
+  })
+
+  describe('config.altMethodNames', () => {
+    it('defines new method names to prevent name clashes', () => {
+      api = quickrest({
+        endpoints,
+        root,
+        altMethodNames: {
+          get: 'fetch',
+        }
+      })
+
+      expect(api.users.fetch).to.exist.to.be.a('function')
+      expect(api.users.create).to.exist.to.be.a('function')
+    })
+  })
+
+  describe('config.endpoints', () => {
+    it('accepts a string or object containing a "resource" property', () => {
+      api = quickrest({
+        root,
+        endpoints: [
+          'users',
+          {
+            resource: 'plays',
+          }
+        ]
+      })
+
+      expect(api.users).to.exist
+      expect(api.plays).to.exist
+    })
+
+    it('accepts an alt http verb for creating that resource', () => {
+      
     })
   })
 })
