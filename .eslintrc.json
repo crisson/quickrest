@@ -3,8 +3,15 @@
     "plugins": [
         "standard"
     ],
+    "globals": {
+        "expect": true,
+        "sinon": true
+    },
     "env": {
         "browser": true,
         "mocha": true
+    },
+    "rules": {
+      "comma-dangle": 0
     }
 }
