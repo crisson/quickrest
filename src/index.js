@@ -3,6 +3,11 @@ import dropWhile from 'lodash.dropwhile'
 import isObject from 'lodash.isobject'
 import noopLogger from 'noop-logger'
 
+const DEFAULT_HEADERS = {
+  'Content-Type': 'application/json',
+  'Accept': 'application/json'
+}
+
 /**
  * A function that accepts everything, does nothing, and returns undefined.
  * @return {void}
@@ -10,11 +15,12 @@ import noopLogger from 'noop-logger'
 function noop () {}
 
 function makeRequest (superagent, PromiseLib) {
-  return function (url, method, props, headers, cb) {
+  return function (url, method, props = {}, query = {}, headers, cb) {
     return new PromiseLib((resolve, reject) => {
-      superagent[method].bind(superagent)
-        .send(props)
+      superagent[method](url)
         .set(headers)
+        .query(query)
+        .send(props)
         .end((err, res) => {
           const out = { status: res.status, model: res.body }
           cb(err, out)
@@ -39,22 +45,22 @@ function proto (resource, opts) {
   return {
     [create || 'create']: function (props, cb = noop) {
       const method = resource.props && resource.props.createMethod || 'post'
-      return request(this._route(), method, props, headers, cb)
+      return request(this._route(), method, props, {}, headers, cb)
     },
     [del || 'del']: function (cb = noop) {
-      return request(this._route(), 'delete', {}, headers, cb)
+      return request(this._route(), 'delete', {}, {}, headers, cb)
     },
     [del || 'delete']: function (cb = noop) {
-      return request(this._route(), 'delete', {}, headers, cb)
+      return request(this._route(), 'delete', {}, {}, headers, cb)
     },
     [get || 'get']: function (cb = noop) {
-      return request(this._route(), 'get', {}, headers, cb)
+      return request(this._route(), 'get', {}, {}, headers, cb)
     },
     [list || 'list']: function (query, cb = noop) {
-      return request(this._route(), 'get', {}, headers, cb)
+      return request(this._route(), 'get', query, query, headers, cb)
     },
     [update || 'update']: function (props, cb = noop) {
-      return request(this._route(), 'put', {}, headers, cb)
+      return request(this._route(), 'put', props, {}, headers, cb)
     },
   }
 }
@@ -192,25 +198,26 @@ function validateConfig (config) {
   }
 }
 
-function chooseDependencies(config){
+function chooseDependencies (config) {
   const {logger = noopLogger, promise, request} = config
 
   let agent = request
   let promiseLib = promise
 
-  if (!request) {
+  if (!promise) {
     try {
-      agent = require('superagent')
+      promiseLib = require('es6-promise').Promise
     } catch (er) {
-      logger.warn()
+      logger.warn('using default')
     }
   }
 
-  if (!promise) {
+  if (!request) {
     try {
-      promiseLib = require('es6-promise')
+      const superagent = require('superagent')
+      agent = makeRequest(superagent, promiseLib)
     } catch (er) {
-      logger.warn('using default')
+      logger.warn()
     }
   }
 
@@ -224,7 +231,6 @@ export default module.exports = (config) => {
   validateConfig(config)
 
   const [promiseLib, requestLib] = chooseDependencies(config)
-  makeRequest(requestLib, promiseLib)
 
   let [simpleResources, resources, versions] = buildResources(endpoints)
 
@@ -243,6 +249,12 @@ export default module.exports = (config) => {
   // resources are created with the proper fluent behavior.
   all.sort((ls, xs) => -(ls.length - xs.length))
 
-  const opts = {...config, request: requestLib, promise: promiseLib, logger}
+  const opts = Object.assign({}, config, {
+    request: requestLib,
+    promise: promiseLib, logger
+  }, {
+    headers: Object.assign({}, DEFAULT_HEADERS, config.headers || {})
+  })
+
   return build(opts)(all)
 }

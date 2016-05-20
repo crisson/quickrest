@@ -1,4 +1,9 @@
+import nock from 'nock'
+import es6promise from 'es6-promise'
+
 import quickrest from '../src'
+
+const PromiseLib = es6promise.Promise
 
 describe('quickrest', function () {
   const root = 'https://api.example.com'
@@ -84,7 +89,7 @@ describe('quickrest', function () {
 
     it('and "update"', () => {
       const args = {}
-      api.users(9000).update(spy1)
+      api.users(9000).update(args, spy1)
       expect(spy).to.have.been.calledWith(`${root}/users/9000`, 'put', args)
     })
   })
@@ -98,6 +103,151 @@ describe('quickrest', function () {
 
       api.users(9000).posts(3).comments.create(args, spy2)
       expect(spy).to.have.been.calledWith(`${root}/users/9000/posts/3/comments`, 'post', args)
+    })
+  })
+
+  describe('request', () => {
+    beforeEach(() => {
+      api = quickrest({root, endpoints})
+    })
+
+    it('may return a promise with response data', () => {
+      const body = {
+        id: 9000,
+        email: 'jane.smith@example.com',
+      }
+
+      nock(root)
+        .get('/users/9000')
+        .reply(200, body)
+
+      const promise = api.users(9000).get()
+
+      return PromiseLib.all([
+        expect(promise).to.eventually.have.property('model').that.eql(body),
+        expect(promise).to.eventually.have.property('status', 200),
+      ])
+    })
+
+    it('for post', () => {
+      const body = {
+        title: 'blog post',
+        content: 'this is great',
+      }
+
+      nock(root)
+        .post('/users/9000/posts')
+        .reply(200, body)
+
+      const promise = api.users(9000).posts.create(body)
+
+      return PromiseLib.all([
+        expect(promise).to.eventually.have.property('model').that.eql(body),
+        expect(promise).to.eventually.have.property('status', 200),
+      ])
+    })
+
+    it('for put', () => {
+      const body = {
+        title: 'blog post',
+        content: 'this is great',
+      }
+
+      const resp = Object.assign({id: 4}, body)
+
+      nock(root)
+        .put('/users/9000/posts', body)
+        .reply(200, resp)
+
+      const promise = api.users(9000).posts.update(body)
+
+      return PromiseLib.all([
+        expect(promise).to.eventually.have.property('model').that.eql(resp),
+        expect(promise).to.eventually.have.property('status', 200),
+      ])
+    })
+
+    it('get all', () => {
+      const query = {
+        page: 2,
+        rpp: 50,
+      }
+
+      const resp = {
+        rpp: query.rpp,
+        page: 2,
+        items: []
+      }
+
+      nock(root)
+        .get('/users/9000/posts')
+        .query(query)
+        .reply(200, resp)
+
+      const promise = api.users(9000).posts.list(query)
+
+      return PromiseLib.all([
+        expect(promise).to.eventually.have.property('model').that.eql(resp),
+        expect(promise).to.eventually.have.property('status', 200),
+      ])
+    })
+
+    it('and delete', () => {
+      nock(root)
+        .delete('/users/9000')
+        .reply(204)
+
+      const promise = api.users(9000).del()
+
+      return PromiseLib.all([
+        expect(promise).to.eventually.have.property('status', 204),
+      ])
+    })
+
+    it('may return a reject promise if the request fails', () => {
+      nock(root)
+        .delete('/users/9001')
+        .reply(404)
+
+      const promise = api.users(9001).del()
+
+      return PromiseLib.all([
+        expect(promise).to.be.rejected
+      ])
+    })
+
+    it('invokes a callback with response data', (done) => {
+      const body = {
+        id: 9000,
+        email: 'jane.smith@example.com',
+      }
+
+      nock(root)
+        .get('/users/9000')
+        .reply(200, body)
+
+      api.users(9000).get((err, res) => {
+        if (err) return done(err)
+        expect(res.model).to.eql(body)
+        done()
+      })
+    })
+
+    it('invokes a callback with error data if the request fails', done => {
+      const body = {
+        id: 9000,
+        email: 'jane.smith@example.com',
+      }
+
+      nock(root)
+        .get('/users/9000')
+        .reply(404, body)
+
+      api.users(9000).get((err, res) => {
+        expect(err).to.exist.be.an.instanceOf(Error)
+        expect(res.status).to.equal(404)
+        done()
+      })
     })
   })
 })
