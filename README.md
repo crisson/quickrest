@@ -73,7 +73,6 @@ const api = quickrest({
     'comments',
     {
       resource: 'comments',
-      version: 'v2',
       createMethod: 'put', // put will be used for creation and update
     }
   ],
