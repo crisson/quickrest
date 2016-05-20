@@ -18,9 +18,23 @@ A simple library for quickly building REST API clients.
     npm install quickrest --save
     bower install quickrest --save
 
+#### peerDependencies
+* [superagent](https://github.com/visionmedia/superagent)
+* [es6-promise](https://github.com/stefanpenner/es6-promise)
+
+
+If you're indifferent to the http library used, this lib will attempt to use
+`superagent`. The same expectation applies to `es6-promise`.
+
+It's your responsibility to install them alongside this lib.
+
+```
+npm install --save es6-promise superagent
+```
+
 ### Node/CommonJS
 ```javascript
-var quickrest = require('quickrest')
+const quickrest = require('quickrest')
 ```
 
 ### ES6 Module
@@ -83,7 +97,7 @@ api.users.posts.get(9000, 3)
 
 // get nested resource, and pass response to callback
 // GET /users/9000/posts
-api.users.posts.get(9000, 3, {page: 42, rpp: 200, query: 'bah'}, console.log.bind(console))
+api.users.posts.list(9000, 3, {page: 42, rpp: 200, query: 'bah'}, console.log.bind(console))
 
 // create nested resource
 // POST /users/9000/posts
@@ -119,6 +133,8 @@ api.comments.create({post_id: 3, data: 'something'})
 api.v2.comments.create({post_id: 3, content: 'something'})
 
 ```
+
+
 
 ## Documented Example
 
@@ -166,7 +182,9 @@ const api = quickrest({
   promise: bluebird,
 
   /**
-   * Makes HTTP requests
+   * Makes HTTP requests.  If this is not specified, this library will use `superagent`.  superagent is a peerDependency, and it is your responsibility
+   * to install it.
+   *
    * @param  {string}   url     the url to which the request will be made
    * @param  {string}   method  the http method lowercased (i.e., get, put, etc)
    * @param  {Object}   params  parameters to be sent with the request
@@ -180,17 +198,12 @@ const api = quickrest({
   },
 
   /**
-   * An object with the methods {log, info, warn, error}.  Defaults to logging to
-   * the console if logging is enabled.
+   * An object with the methods {log, info, warn, error}.  Defaults to a
+   * noop logger if left undefined is provided.
    * @type {Object}
    */
   logger: console,
 
-  /**
-   * Whether logging is enabled
-   * @type {Boolean}
-   */
-  enableLogging: false,
 
   /**
    * Describes the shape of the response for `list()` endpoints.
@@ -236,6 +249,18 @@ const api = quickrest({
   },
 
   /**
+   * An mapping of REST API method names to synonyms to prevent conflicts with REST API resource names.
+   * @type {Object}
+   */
+  altMethodNames: {
+    create: 'make',
+    del: 'remove'
+    get: 'fetch',
+    list: 'all',
+    update: 'overhaul',
+  },
+
+  /**
    * A function run before each network request
    * @param  {Object}   params  request parameters
    * @param  {Object}   headers headers set by the user invoking an api function.
@@ -268,11 +293,26 @@ const api = quickrest({
     'comments',
     {
       resource: 'comments',
-      version: 'v3',
+      /**
+       * @see versions above
+       * @type {Array.<string>|string}
+       */
+      versions: 'v3',
       createMethod: 'put', // put will be used for creation and update
     }
   ]
 })
+
+```
+
+## Development
+
+Clone respository and install dependencies.
+
+All development dependencies are managed via npm.
+
+```
+npm install
 ```
 
 ## License
