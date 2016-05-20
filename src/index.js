@@ -68,9 +68,10 @@ function proto (resource, opts) {
 /**
  * Cleans and normalizes resource strings
  * @param  {Array.<string>} raw
+ * @param {Array.<string>} [commonVersions=[]]
  * @return {Array.<Array.<string>>}
  */
-function buildResources (endpoints) {
+function buildResources (endpoints, commonVersions) {
   /**
    * An identity map of all the versions encountered to this point
    * @type {Object.<string, string>}
@@ -87,6 +88,11 @@ function buildResources (endpoints) {
     if (!isObject(resource)) {
       const clean = compact(resource.split('/'))
       simpleResources.push(clean)
+      commonVersions.forEach(cv => {
+        const copy = clean.slice()
+        copy.unshift(cv)
+        simpleResources.push(copy)
+      })
       return clean
     }
 
@@ -186,6 +192,12 @@ function build (conf) {
   }
 }
 
+/**
+ * Validates required initialization provided by the user
+ * @param  {Object} config the configuration object argument provided at
+ * initialization
+ * @return {void}
+ */
 function validateConfig (config) {
   const {endpoints, root = ''} = config
 
@@ -198,6 +210,12 @@ function validateConfig (config) {
   }
 }
 
+/**
+ * Choose between user provided dependencies and peer dependencies mentioned
+ * in the README
+ * @param  {Object} config
+ * @return {(Promise, request)}
+ */
 function chooseDependencies (config) {
   const {logger = noopLogger, promise, request} = config
 
@@ -225,25 +243,23 @@ function chooseDependencies (config) {
 }
 
 export default module.exports = (config) => {
-  const {endpoints} = config
+  const {endpoints, versions = []} = config
   const {logger = noopLogger} = config
 
   validateConfig(config)
 
   const [promiseLib, requestLib] = chooseDependencies(config)
 
-  let [simpleResources, resources, versions] = buildResources(endpoints)
+  const commonVersions = compact([].concat(versions))
+  let [ simpleResources, resources, ] = buildResources(endpoints, commonVersions)
 
   // this removes empty arrays from `resources`.  empty arrays may arise from
   // a user inputing an empty string endpoint.
   resources = resources.filter(ls => ls.length)
 
-  // spread the version numbers among all simple endpoints
-  const versioned = Object.keys(versions)
-    .map(vr => simpleResources.map(r => `${vr}/${r}`))
-
   let all = resources.slice()
-  Array.prototype.push.apply(all, versioned)
+  // Array.prototype.push.apply(all, versioned)
+  all = all.concat(simpleResources)
 
   // by placing the deep resource hiearchies first, we ensure that top-level
   // resources are created with the proper fluent behavior.

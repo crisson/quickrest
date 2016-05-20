@@ -250,4 +250,12 @@ describe('quickrest', function () {
       })
     })
   })
+
+  describe('versions', () => {
+    it('allows you to gracefully evolve an API', () => {
+      api = quickrest({endpoints, root, versions: 'v1'})
+      expect(api.v1).to.exist
+      expect(api.v1().users).to.exist
+    })
+  })
 })
