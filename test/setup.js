@@ -7,5 +7,4 @@ chai.use(chaiAsPromised)
 chai.use(sinonChai)
 
 global.expect = chai.expect
-global.spy = sinon.spy
-global.stub = sinon.stub
+global.sinon = sinon
