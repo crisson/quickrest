@@ -1,10 +1,8 @@
 # Quickrest
 
-**THIS PROJECT IS A WIP.**
-
-**The following represents the proposed API.  It has not been fully implemented.**
-
 A simple library for quickly building REST API clients.
+
+***This library is a WIP.  Not all features, such as `beforeEach` have been implemented***
 
 ## Features
 * Offers both a callback and promise-based API.
@@ -57,7 +55,7 @@ const DEFAULT_USER_ID = 9000
 const api = quickrest({
   root: 'https://api.example.com',
   promise: bluebird,
-  request: (url, method, params, headers, cb) => {
+  request: (url, method, params, query, headers, cb) => {
     // since qwest returns a promise, there's no need to invoke the cb
     return qwest[method].bind(qwest, method)(url, params, headers)
   },
@@ -83,44 +81,37 @@ const api = quickrest({
 
 // callback interface
 // GET /users/9000
-api.users.get(9000, (err, ({model, })) => console.log(err, model))
+api.users(9000).get((err, ({model, })) => console.log(err, model))
 
 // promise interface
 // GET /users/9000
-api.users.get(9000)
+api.users(9000).get()
   .then(({model, }) => console.info(model))
   .catch(console.error.bind(console))
 
 // get nested resource
 // GET /users/9000/posts/3
-api.users.posts.get(9000, 3)
+api.users(9000).posts(3).get()
 
 // get nested resource, and pass response to callback
 // GET /users/9000/posts
-api.users.posts.list(9000, 3, {page: 42, rpp: 200, query: 'bah'}, console.log.bind(console))
+api.users(9000).posts.list({page: 42, rpp: 200, query: 'bah'}, console.log.bind(console))
 
 // create nested resource
 // POST /users/9000/posts
-api.users.posts.create(9000, {title: '...', content: 'something'})
+api.users(9000).posts.create({title: '...', content: 'something'})
 
 // create doubly-nested resource
 // POST /users/9000/posts/3/comments
-api.users.posts.comments.create(9000, 3, {title: '...', content: 'something'})
-
-// create doubly-nested resource, fluent syntax
-// POST /users/9000/posts/3/comments
-api.users(9000)
-  .posts(3)
-  .comments
-  .create({title: '...', content: 'something'})
+api.users(9000).posts(3).comments.create({title: '...', content: 'something'})
 
 // delete nested resource
 // DELETE /users/9000/posts/3
-api.users.posts.del(9000, 3)
+api.users(9000).posts(3).del()
 
 // same as api.users.create(...), since v2 of this route was not defined above
 // GET /v1/users
-api.v2.users.get(9000)
+api.v2().users(9000).get()
   .then(({model, }) => console.info(model))
   .catch(console.error.bind(console))
 
@@ -130,7 +121,7 @@ api.comments.create({post_id: 3, data: 'something'})
 
 // this endpoint is distinct from api.comments
 // /v2/comments
-api.v2.comments.create({post_id: 3, content: 'something'})
+api.v2().comments.create({post_id: 3, content: 'something'})
 
 ```
 
@@ -283,7 +274,7 @@ const api = quickrest({
    * @type {Array}
    */
   endpoints: [
-    'user', // automatically expanded to 'users'.  use an object for a singular resource name.
+    'users',
     'users/posts',
     'users/posts/comments',
     'posts',
@@ -293,11 +284,6 @@ const api = quickrest({
     'comments',
     {
       resource: 'comments',
-      /**
-       * @see versions above
-       * @type {Array.<string>|string}
-       */
-      versions: 'v3',
       createMethod: 'put', // put will be used for creation and update
     }
   ]
