@@ -4,6 +4,9 @@
   "description": "a simple REST API client library factory",
   "main": "lib/index.js",
   "repository": "https://github.com/crisson/quickrest.git",
+  "engines": {
+   "node": ">=4.0.x"
+  },
   "scripts": {
     "test": "mocha",
     "compile": "babel src -d lib -s",
