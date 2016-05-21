@@ -2,6 +2,9 @@
 
 A simple library for quickly building REST API clients.
 
+## Status
+![build status](https://travis-ci.org/crisson/quickrest.svg?branch=master)
+
 ***This library is a WIP.  Not all features, such as `beforeEach`, have been implemented***
 
 ## Features
