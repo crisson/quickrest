@@ -1,4 +1,4 @@
--R markdown
+-R spec
 -r test/setup.js
---compilers js:babel-register
+--compilers js:babel-core/register
 test/**/*-test.js
