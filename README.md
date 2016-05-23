@@ -14,6 +14,10 @@ A simple library for quickly building REST API clients.
 * Supports complex API versions.
 * Offers a fluent API for requesting nested resources.
 
+## Motivation
+
+Libraries for popular web services will either be written by the service provider or by the open source community.  For services that are not well-known or nascent, one might have to make API calls with popular libraries like requests or superagent.  These libraries are fine, but constructing API urls via string concatenation (or even template strings) can be annoying and error prone. Instead of jumping out of the programming langauge to build API calls, I wanted to explore whether providing a fluent interface using an API's nouns would make for a better, more pleasant programming experience.
+
 ## Installation
 
     npm install quickrest --save
@@ -121,7 +125,6 @@ api.v2().users(9000).get()
 // PUT /comments
 api.comments.create({post_id: 3, data: 'something'})
 
-// this endpoint is distinct from api.comments
 // /v2/comments
 api.v2().comments.create({post_id: 3, content: 'something'})
 
@@ -175,17 +178,17 @@ const api = quickrest({
   promise: bluebird,
 
   /**
-   * Makes HTTP requests.  If this is not specified, this library will use `superagent`.  superagent is a peerDependency, and it is your responsibility
-   * to install it.
+   * Makes HTTP requests.  If this function is not specified, the library will use `superagent`.  superagent is a peerDependency, and it is your responsibility to install it.
    *
    * @param  {string}   url     the url to which the request will be made
    * @param  {string}   method  the http method lowercased (i.e., get, put, etc)
    * @param  {Object}   params  parameters to be sent with the request
+   * @param  {Object={}}   [ query ]   query string parameters
    * @param  {Object}   headers headers to be sent with the request
    * @param  {Function} cb      callback invoked with the result of the http request
    * @return {Promise|null}           either a promise if the http request lib returns a promise, or null.  Alternatively, the callback `cb` may be invoked in the typical node style (i.e., cb(err, resp)).
    */
-  request: (url, method, params, headers, cb) => {
+  request: (url, method, params, query, headers, cb) => {
     // since qwest returns a promise, there's no need to invoke the cb
     return qwest[method].bind(qwest, method)(url, params, headers)
   },
