@@ -1,6 +1,6 @@
-# Quickrest
+# ouickrest
 
-A simple library for quickly building REST API clients.
+A simple library for quickly building browser-based REST API clients.
 
 ## Status
 [![Build Status](https://travis-ci.org/crisson/quickrest.svg?branch=master)](https://travis-ci.org/crisson/quickrest)
@@ -16,7 +16,27 @@ A simple library for quickly building REST API clients.
 
 ## Motivation
 
-Libraries for popular web services will either be written by the service provider or by the open source community.  For services that are not well-known or nascent, one might have to make API calls with popular libraries like requests or superagent.  These libraries are fine, but constructing API urls via string concatenation (or even template strings) can be annoying and error prone. Instead of jumping out of the programming langauge to build API calls, I wanted to explore whether providing a fluent interface using an API's nouns would make for a better, more pleasant programming experience.
+Constructing API urls via string concatenation (or even template strings) can be annoying and error prone. Using JavaScript's language featues to model a REST API's resourcesmakes for a more pleasant programming experience.
+
+## Caveats
+
+The library should be used in contexts where high-level REST parameters are set once for the lifetype of the app/process (e.g., bearer tokens for an app instead of those tokens for users of that app). It lacks a simple mechanism to scope request-specific REST data (e.g., authentication headers, paging preferences).
+
+This capability is not a priority at the moment, but a PR with it is welcome =). It might look something like this:
+
+```javascript
+import quickrest from 'quickrest'
+const api = quickrest(...);
+
+// then for each request (e.g., in an express middleware function)
+function(req, res, next){
+  req.api = api.customize({
+    headers: {...},
+    collections: {...},
+  })
+  next()
+}
+```
 
 ## Installation
 
