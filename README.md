@@ -1,4 +1,4 @@
-# ouickrest
+# quickrest
 
 A simple library for quickly building browser-based REST API clients.
 
@@ -20,7 +20,7 @@ Constructing API urls via string concatenation (or even template strings) can be
 
 ## Caveats
 
-The library should be used in contexts where high-level REST parameters are set once for the lifetype of the app/process (e.g., bearer tokens for an app instead of those tokens for users of that app). It lacks a simple mechanism to scope request-specific REST data (e.g., authentication headers, paging preferences).
+The library should be used in contexts where high-level REST parameters are set once for the lifetime of the app/process (e.g., bearer tokens for an app instead of those tokens for users of that app). It lacks a simple mechanism to scope request-specific REST data (e.g., authentication headers, paging preferences).
 
 This capability is not a priority at the moment, but a PR with it is welcome =). It might look something like this:
 
@@ -30,9 +30,8 @@ const api = quickrest(...);
 
 // then for each request (e.g., in an express middleware function)
 function(req, res, next){
-  req.api = api.customize({
+  req.api = api.specialize({
     headers: {...},
-    collections: {...},
   })
   next()
 }
@@ -219,36 +218,6 @@ const api = quickrest({
    * @type {Object}
    */
   logger: console,
-
-
-  /**
-   * Describes the shape of the response for `list()` endpoints.
-   *
-   * Keys are parameters required by this lib, and their values represent the path through nested object keys to retrieve them.
-   *
-   * The path should be compatible with lodash's [_.at](https://*lodash.com/docs#at)
-   *
-   * The shape expected by default looks like:
-   * @example
-   * {
-   *   "page": 1,
-   *   "rpp": 20,
-   *   "items": [
-   *     ...
-   *   ],
-   *   "query": ""
-   * }
-   *
-   * This property need not be specified if your list endpoints return the default shape.
-   *
-   * @type {Object}
-   */
-  collection: {
-    page: 'page',
-    resultsPerPage: 'rpp',
-    models: 'items',
-    query: 'term',
-  },
 
   /**
    * Headers sent with every request.
