@@ -71,7 +71,7 @@ describe('quickrest', function () {
   })
 
   describe('top-level resources', () => {
-    it('urls are prefixed only be root', () => {
+    it('urls are prefixed only by root', () => {
       const args = {}
       api.users.create({}, spy1)
       expect(spy).to.have.been.calledWith(`${root}/users`, 'post', args)
