@@ -57,7 +57,7 @@ function proto (resource, opts) {
       return request(this._route(), 'get', {}, {}, headers, cb)
     },
     [list || 'list']: function (query, cb = noop) {
-      return request(this._route(), 'get', query, query, headers, cb)
+      return request(this._route(), 'get', {}, query, headers, cb)
     },
     [update || 'update']: function (props, cb = noop) {
       return request(this._route(), 'put', props, {}, headers, cb)
@@ -130,21 +130,21 @@ function cleanroot (root) {
 }
 
 /**
- * Returns a function that recursively builds the rest api object hierarchy
+ * Returns a function that recursively builds the rest api object hierarchy.  
+ *
+ * The object built includes the REST resource names as function.  Those functions have function-properties consisting of the REST methods (i.e. get, create, etc). The resourceful functions, when invoked return a new object hiearchy of their subresources (e.g, api.users(23).posts...).
  * @param  {Object} conf
  * @return {Function}
  */
 function build (conf) {
   /**
    * Recursively builds a nested object of REST resource objects.
-   * @param  {Array.<Array.<string>} resources array of an array of resource/subresource paths. the
-   * arrays should be sorted such that the longest arrays are towards the beginning of
-   * the array container container.
-   * @param  {Object} accum     output map of REST resources
+   * @param  {Array.<Array.<string>>} resources array of an array of resource/subresource paths. the arrays should be sorted such that the longest arrays are towards the beginning of the array container.
+   * @param  {Object} accum     output object of REST resources
    * @return {Object} the accumulated object
    */
   return function loop (resources, accum = function () {}) {
-    // there are no additional resources, so return the built map
+    // there are no additional resources, so return the built function
     if (!resources.length) return accum
 
     const [ xs, ...rest ] = resources
@@ -193,7 +193,7 @@ function build (conf) {
 }
 
 /**
- * Validates required initialization provided by the user
+ * Validates required initialization parameters provided by the user.
  * @param  {Object} config the configuration object argument provided at
  * initialization
  * @return {void}
@@ -212,7 +212,7 @@ function validateConfig (config) {
 
 /**
  * Choose between user provided dependencies and peer dependencies mentioned
- * in the README
+ * in the README.
  * @param  {Object} config
  * @return {(Promise, request)}
  */
@@ -226,7 +226,7 @@ function chooseDependencies (config) {
     try {
       promiseLib = require('es6-promise').Promise
     } catch (er) {
-      logger.warn('using default')
+        throw new Error('expected Promise to be defined or es6-promise to be installed, but both are missing')
     }
   }
 
@@ -235,7 +235,7 @@ function chooseDependencies (config) {
       const superagent = require('superagent')
       agent = makeRequest(superagent, promiseLib)
     } catch (er) {
-      logger.warn()
+        throw new Error('expected request function to be defined or superagent to be installed, but both are missing')
     }
   }
 
@@ -250,24 +250,26 @@ export default module.exports = (config) => {
 
   const [promiseLib, requestLib] = chooseDependencies(config)
 
+  // we want to work with an array of strings, but versions may be either an array or a single stirng 
   const commonVersions = compact([].concat(versions))
+
   let [ simpleResources, resources, ] = buildResources(endpoints, commonVersions)
 
   // this removes empty arrays from `resources`.  empty arrays may arise from
   // a user inputing an empty string endpoint.
-  resources = resources.filter(ls => ls.length)
+  let all = resources.filter(ls => ls.length).slice()
 
-  let all = resources.slice()
   // Array.prototype.push.apply(all, versioned)
   all = all.concat(simpleResources)
 
-  // by placing the deep resource hiearchies first, we ensure that top-level
+  // by placing the deep resource hierarchies first, we ensure that top-level
   // resources are created with the proper fluent behavior.
   all.sort((ls, xs) => -(ls.length - xs.length))
 
   const opts = Object.assign({}, config, {
     request: requestLib,
-    promise: promiseLib, logger
+    promise: promiseLib, 
+    logger,
   }, {
     headers: Object.assign({}, DEFAULT_HEADERS, config.headers || {})
   })
