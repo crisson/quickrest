@@ -4,7 +4,6 @@ A simple library for quickly building browser-based REST API clients.
 
 ## Status
 [![Build Status](https://travis-ci.org/crisson/quickrest.svg?branch=master)](https://travis-ci.org/crisson/quickrest)
-[![Code Climate](https://codeclimate.com/github/crisson/quickrest/badges/gpa.svg)](https://codeclimate.com/github/crisson/quickrest)
 
 
 ## Features
@@ -20,7 +19,7 @@ Constructing API urls via string concatenation (or even template strings) can be
 
 ## Caveats
 
-The library is currently meant for environments  where high-level REST parameters are set once for the lifetime of the app/process, (e.g., bearer tokens for an app instead of those tokens for users of that app) like in a browser. It lacks a simple mechanism to scope request-specific REST data (e.g., per-request data within an express.js app).
+The library is currently meant for environments  where high-level REST parameters are set once for the lifetime of the app/process, (e.g., bearer tokens for an app) like in a browser. It lacks a simple mechanism to scope request-specific REST data (e.g., per-request data within an express.js app).
 
 This capability is not a priority at the moment, but a PR with it is welcome =). It might look something like this:
 
