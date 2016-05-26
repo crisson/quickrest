@@ -48,10 +48,8 @@ function(req, res, next){
 * [es6-promise](https://github.com/stefanpenner/es6-promise)
 
 
-If you're indifferent to the http library used, this lib will attempt to use
-`superagent`. The same expectation applies to `es6-promise`.
-
-It's your responsibility to install them alongside this lib.
+If you're indifferent to the http and Promise libraries used, this lib will attempt to use
+`superagent` and `es6-promise`, respectively.  These libraries are considered peer dependencies, so it's your responsibility to install them alongside this lib.
 
 ```
 npm install --save es6-promise superagent
@@ -81,16 +79,6 @@ const DEFAULT_USER_ID = 9000
 
 const api = quickrest({
   root: 'https://api.example.com',
-  promise: bluebird,
-  request: (url, method, params, query, headers, cb) => {
-    // since qwest returns a promise, there's no need to invoke the cb
-    return qwest[method].bind(qwest)(url, params, {headers})
-  },
-  async beforeEach(params, query, headers, cb){
-    const token = await tokenStore.getTokenForUser(DEFAULT_USER_ID)
-    const ah = {Authorization: `Bearer ${token}`}
-    return {headers: ah}
-  },
   endpoints: [
     'users',
     'users/posts',
