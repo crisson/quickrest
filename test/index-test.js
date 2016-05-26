@@ -204,7 +204,7 @@ describe('quickrest', function () {
       ])
     })
 
-    it('may return a reject promise if the request fails', () => {
+    it('may return a rejected promise if the request fails', () => {
       nock(root)
         .delete('/users/9001')
         .reply(404)
@@ -293,5 +293,50 @@ describe('quickrest', function () {
     it('accepts an alt http verb for creating that resource', () => {
       
     })
+  })
+
+  describe('config.beforeEach', () => {
+      it('is called', () => {
+          api = quickrest({endpoints, root, beforeEach: spy})
+          api.users.list()
+          expect(spy).to.have.been.calledOnce
+      })
+
+      it('accepts a callback that receives an object containing params, query, and headers', (done) => {
+        const spy1 = sinon.spy()
+
+        api = quickrest({
+            endpoints,
+            root,
+            beforeEach(params, query, headers){
+                return {headers: {'X-Request-Check': 2}}
+            },
+            request(route, method, parmas, query, headers, cb) {
+                expect(headers).to.have.been.property('X-Request-Check', 2);
+                done()
+            }
+        })
+
+        api.users.create({foo: 'bar'}, (err, res) => {
+            expect(err).to.not.exist
+        })
+      })
+
+      it('may return an object that will be wrapped in a promise', () => {
+          const body = {foo: ''}
+         nock(root)
+            .get('/users/9019')
+            .reply(200, body)
+
+        api = quickrest({
+            endpoints,
+            root,
+            beforeEach(params, query, headers){
+                return {headers: {'X-Request-Check': 2}}
+            },
+        })
+
+        return expect(api.users(9019).get()).to.eventually.have.property('model').to.eql(body)
+      })
   })
 })

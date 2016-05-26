@@ -14,21 +14,78 @@ const DEFAULT_HEADERS = {
  */
 function noop () {}
 
-function makeRequest (superagent, PromiseLib) {
+function requestFactory (superagent, PromiseLib) {
   return function (url, method, props = {}, query = {}, headers, cb) {
-    return new PromiseLib((resolve, reject) => {
-      superagent[method](url)
+    const req = superagent[method](url)
         .set(headers)
         .query(query)
         .send(props)
-        .end((err, res) => {
+
+    if (!PromiseLib) {
+        return req.end((err, res) => {
+            const out = { status: res.status, model: res.body }
+            return cb(err, out)
+        })
+    }
+
+    return new PromiseLib((resolve, reject) => {
+        req.end((err, res) => {
           const out = { status: res.status, model: res.body }
-          cb(err, out)
+          if (cb) {
+            cb(err, out)
+          }
+
           if (err) return reject(err)
           resolve(out)
         })
     })
   }
+}
+
+/**
+ * Returns a function that defines the response handler for a RESTful verb (i.e., get, create, etc.)
+ * @param {Object} opts the config options provided by user amended to include a valid Promise lib and request function
+ * @returns {Function}
+ */
+function verbFactory(opts, request) {
+    return function(route, method, properties, query, headers, cb){
+        const processed = function(mod = {}, finish){
+            const head = Object.assign({}, headers, (mod.headers || {}))
+            const props = Object.assign({}, properties, (mod.properties || {}))
+            const qry = Object.assign({}, query, (mod.query || {}))
+            
+            return request(route, method, props, qry, head, finish)
+        }
+
+        // if opts.beforeEach is not defined, we execute the default request flow
+        if (!opts.beforeEach) {
+            if (!cb){
+                return new opts.promise(resolve => {
+                    return processed({})
+                })
+            }
+
+            return processed({}, cb)
+        }
+
+        const spy = function(err, mod){
+            // we specifically do not return the output of the callback because its value (or its absence) might be considered significant elsewhere within this lib.
+           if (err) {
+             return cb(err)
+           } 
+
+           processed(mod, cb) 
+        }
+
+        let out = opts.beforeEach(properties, query, headers, spy)
+        
+        // if out is undefined, we assume that the callback will be used
+        if (out === undefined) {
+            return
+        }
+ 
+        return opts.promise.resolve(out).then(processed)
+    }
 }
 
 /**
@@ -42,27 +99,31 @@ function proto (resource, opts) {
   const { altMethodNames = {}, request, headers, } = opts
   const { get, create, update, del, list, } = altMethodNames
 
-  return {
+  const factory = verbFactory(opts, request)
+  
+  const out = {
     [create || 'create']: function (props, cb = noop) {
       const method = resource.props && resource.props.createMethod || 'post'
-      return request(this._route(), method, props, {}, headers, cb)
+      return factory(this._route(), method, props, {}, headers, cb)
     },
     [del || 'del']: function (cb = noop) {
-      return request(this._route(), 'delete', {}, {}, headers, cb)
+      return factory(this._route(), 'delete', {}, {}, headers, cb)
     },
     [del || 'delete']: function (cb = noop) {
-      return request(this._route(), 'delete', {}, {}, headers, cb)
+      return factory(this._route(), 'delete', {}, {}, headers, cb)
     },
     [get || 'get']: function (cb = noop) {
-      return request(this._route(), 'get', {}, {}, headers, cb)
+      return factory(this._route(), 'get', {}, {}, headers, cb)
     },
     [list || 'list']: function (query, cb = noop) {
-      return request(this._route(), 'get', {}, query, headers, cb)
+      return factory(this._route(), 'get', {}, query, headers, cb)
     },
     [update || 'update']: function (props, cb = noop) {
-      return request(this._route(), 'put', props, {}, headers, cb)
+      return factory(this._route(), 'put', props, {}, headers, cb)
     },
   }
+
+  return out
 }
 
 /**
@@ -233,7 +294,7 @@ function chooseDependencies (config) {
   if (!request) {
     try {
       const superagent = require('superagent')
-      agent = makeRequest(superagent, promiseLib)
+      agent = requestFactory(superagent, promiseLib)
     } catch (er) {
         throw new Error('expected request function to be defined or superagent to be installed, but both are missing')
     }

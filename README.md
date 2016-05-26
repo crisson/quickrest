@@ -5,7 +5,6 @@ A simple library for quickly building browser-based REST API clients.
 ## Status
 [![Build Status](https://travis-ci.org/crisson/quickrest.svg?branch=master)](https://travis-ci.org/crisson/quickrest)
 
-***This library is a WIP.  Not all features, such as `beforeEach`, have been implemented***
 
 ## Features
 * Offers both a callback and promise-based API.
@@ -16,11 +15,11 @@ A simple library for quickly building browser-based REST API clients.
 
 ## Motivation
 
-Constructing API urls via string concatenation (or even template strings) can be annoying and error prone. Using JavaScript's language featues to model a REST API's resourcesmakes for a more pleasant programming experience.
+Constructing API urls via string concatenation (or even template strings) can be annoying and error prone. Using JavaScript's language featues to model a REST API's resources makes for a more pleasant programming experience.
 
 ## Caveats
 
-The library should be used in contexts where high-level REST parameters are set once for the lifetime of the app/process (e.g., bearer tokens for an app instead of those tokens for users of that app). It lacks a simple mechanism to scope request-specific REST data (e.g., authentication headers, paging preferences).
+The library is currently meant for environments  where high-level REST parameters are set once for the lifetime of the app/process, (e.g., bearer tokens for an app instead of those tokens for users of that app) like in a browser. It lacks a simple mechanism to scope request-specific REST data (e.g., per-request data within an express.js app).
 
 This capability is not a priority at the moment, but a PR with it is welcome =). It might look something like this:
 
@@ -28,11 +27,13 @@ This capability is not a priority at the moment, but a PR with it is welcome =).
 import quickrest from 'quickrest'
 const api = quickrest(...);
 
-// then for each request (e.g., in an express middleware function)
+// and then for each request (e.g., in an express middleware function)
 function(req, res, next){
   req.api = api.specialize({
+    beforeEach(params, query, headers, cb){...},
     headers: {...},
   })
+
   next()
 }
 ```
@@ -85,7 +86,7 @@ const api = quickrest({
     // since qwest returns a promise, there's no need to invoke the cb
     return qwest[method].bind(qwest)(url, params, {headers})
   },
-  async beforeEach(params, headers, cb){
+  async beforeEach(params, query, headers, cb){
     const token = await tokenStore.getTokenForUser(DEFAULT_USER_ID)
     const ah = {Authorization: `Bearer ${token}`}
     return {headers: ah}
@@ -202,7 +203,7 @@ const api = quickrest({
    * @param  {string}   url     the url to which the request will be made
    * @param  {string}   method  the http method lowercased (i.e., get, put, etc)
    * @param  {Object}   params  parameters to be sent with the request
-   * @param  {Object={}}   [ query ]   query string parameters
+   * @param  {Object}   [ query ]   query string parameters
    * @param  {Object}   headers headers to be sent with the request
    * @param  {Function} cb      callback invoked with the result of the http request
    * @return {Promise|null}           either a promise if the http request lib returns a promise, or null.  Alternatively, the callback `cb` may be invoked in the typical node style (i.e., cb(err, resp)).
@@ -214,7 +215,7 @@ const api = quickrest({
 
   /**
    * An object with the methods {log, info, warn, error}.  Defaults to a
-   * noop logger if left undefined is provided.
+   * noop logger if left undefined.
    * @type {Object}
    */
   logger: console,
@@ -246,13 +247,14 @@ const api = quickrest({
   },
 
   /**
-   * A function run before each network request
+   * A function run before each network request. It receives any HTTP request body and query string parameters entered by the user, in additional to consolidated headers. It should return an object containing additional params, query string, or headers that should be added to the request.
    * @param  {Object}   params  request parameters
+   * @param  {Object}   query   request query string parameters
    * @param  {Object}   headers headers set by the user invoking an api function.
    * @param  {Function} cb      callback function optionally invoked
    * @return {Promise.<Object>|Object}           An object containing headers
    */
-  beforeEach(params, headers, cb){
+  beforeEach(params, query, headers, cb){
     // e.g., add as csrf token, authorization header, etc
     const np = {csrf: 'randomToken'}
 
