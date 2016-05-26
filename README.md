@@ -13,72 +13,14 @@ A simple library for quickly building browser-based REST API clients.
 * Supports complex API versions.
 * Offers a fluent API for requesting nested resources.
 
-## Motivation
-
-Constructing API urls via string concatenation (or even template strings) can be annoying and error prone. Using JavaScript's language featues to model a REST API's resources makes for a more pleasant programming experience.
-
-## Caveats
-
-The library is currently meant for environments  where high-level REST parameters are set once for the lifetime of the app/process, (e.g., bearer tokens for an app) like in a browser. It lacks a simple mechanism to scope request-specific REST data (e.g., per-request data within an express.js app).
-
-This capability is not a priority at the moment, but a PR with it is welcome =). It might look something like this:
-
-```javascript
-import quickrest from 'quickrest'
-const api = quickrest(...);
-
-// and then for each request (e.g., in an express middleware function)
-function(req, res, next){
-  req.api = api.specialize({
-    beforeEach(params, query, headers, cb){...},
-    headers: {...},
-  })
-
-  next()
-}
-```
-
-## Installation
-
-    npm install quickrest --save
-    bower install quickrest --save
-
-#### peerDependencies
-* [superagent](https://github.com/visionmedia/superagent)
-* [es6-promise](https://github.com/stefanpenner/es6-promise)
-
-
-If you're indifferent to the http and Promise libraries used, this lib will attempt to use
-`superagent` and `es6-promise`, respectively.  These libraries are considered peer dependencies, so it's your responsibility to install them alongside this lib.
-
-```
-npm install --save es6-promise superagent
-```
-
-### Node/CommonJS
-```javascript
-const quickrest = require('quickrest')
-```
-
-### ES6 Module
-```javascript
-import quickrest from 'quickrest'
-```
-
-
 ## Simple Example
 
 ```javascript
-
-import bluebird from 'bluebird'
-import qwest from 'quest'
-
 import quickrest from 'quickrest'
-
-const DEFAULT_USER_ID = 9000
 
 const api = quickrest({
   root: 'https://api.example.com',
+  versions: 'v2',
   endpoints: [
     'users',
     'users/posts',
@@ -137,6 +79,61 @@ api.comments.create({post_id: 3, data: 'something'})
 api.v2().comments.create({post_id: 3, content: 'something'})
 
 ```
+
+
+## Motivation
+
+Constructing API urls via string concatenation (or even template strings) can be annoying and error prone. Using JavaScript's language featues to model a REST API's resources makes for a more pleasant programming experience.
+
+## Caveats
+
+The library is currently meant for environments  where high-level REST parameters are set once for the lifetime of the app/process, (e.g., bearer tokens for an app) like in a browser. It lacks a simple mechanism to scope request-specific REST data (e.g., per-request data within an express.js app).
+
+This capability is not a priority at the moment, but a PR with it is welcome =). It might look something like this:
+
+```javascript
+import quickrest from 'quickrest'
+const api = quickrest(...);
+
+// and then for each request (e.g., in an express middleware function)
+function(req, res, next){
+  req.api = api.specialize({
+    beforeEach(params, query, headers, cb){...},
+    headers: {...},
+  })
+
+  next()
+}
+```
+
+## Installation
+
+    npm install quickrest --save
+    bower install quickrest --save
+
+#### peerDependencies
+* [superagent](https://github.com/visionmedia/superagent)
+* [es6-promise](https://github.com/stefanpenner/es6-promise)
+
+
+If you're indifferent to the http and Promise libraries used, this lib will attempt to use
+`superagent` and `es6-promise`, respectively.  These libraries are considered peer dependencies, so it's your responsibility to install them alongside this lib.
+
+```
+npm install --save es6-promise superagent
+```
+
+### Node/CommonJS
+```javascript
+const quickrest = require('quickrest')
+```
+
+### ES6 Module
+```javascript
+import quickrest from 'quickrest'
+```
+
+
 
 
 
