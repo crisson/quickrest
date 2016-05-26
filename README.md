@@ -4,6 +4,7 @@ A simple library for quickly building browser-based REST API clients.
 
 ## Status
 [![Build Status](https://travis-ci.org/crisson/quickrest.svg?branch=master)](https://travis-ci.org/crisson/quickrest)
+[![Code Climate](https://codeclimate.com/github/crisson/quickrest/badges/gpa.svg)](https://codeclimate.com/github/crisson/quickrest)
 
 
 ## Features
