@@ -2,6 +2,8 @@
 
 A simple library for quickly building browser-based REST API clients.
 
+***This project is a WIP***
+
 ## Status
 [![Build Status](https://travis-ci.org/crisson/quickrest.svg?branch=master)](https://travis-ci.org/crisson/quickrest)
 
