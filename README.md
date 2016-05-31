@@ -111,7 +111,6 @@ function(req, res, next){
 ## Installation
 
     npm install quickrest --save
-    bower install quickrest --save
 
 #### peerDependencies
 * [superagent](https://github.com/visionmedia/superagent)
