@@ -1,5 +1,5 @@
 {
-    "extends": "standard",
+    "extends": "recommended",
     "plugins": [
         "standard"
     ],
@@ -13,5 +13,8 @@
     },
     "rules": {
       "comma-dangle": 0
+    },
+    "parserOptions": {
+      "ecmaVerion": 6
     }
 }
