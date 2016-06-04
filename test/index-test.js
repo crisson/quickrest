@@ -14,6 +14,8 @@ describe('quickrest', function () {
     'posts',
     'posts/comments',
     'comments',
+    'auth/slack/authorize',
+    'auth/github/authorize',
   ]
 
   it('is a function', () => {
@@ -254,6 +256,7 @@ describe('quickrest', function () {
   describe('config.versions', () => {
     it('allows you to gracefully evolve an API', () => {
       api = quickrest({endpoints, root, versions: 'v1'})
+      //console.log(api)
       expect(api.v1).to.exist
       expect(api.v1().users).to.exist
     })
