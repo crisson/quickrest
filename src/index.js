@@ -401,7 +401,7 @@ function normalize(ls = [
 }
 
 
-export default module.exports = (config) => {
+module.exports = (config) => {
   const { endpoints, versions = [] } = config
   const { logger = noopLogger } = config
 
