@@ -92,7 +92,8 @@ function verbFactory(opts, request) {
       return
     }
 
-    return opts.promise.resolve(out).then(processed)
+    return opts.promise.resolve(out)
+      .then(processed)
   }
 }
 
@@ -118,7 +119,8 @@ function proto(resource, opts) {
 
   const out = {
     [create || 'create']: function(props, cb = noop) {
-      const method = resource.props && resource.props.createMethod || 'post'
+      const method = resource.props && resource.props.createMethod ||
+        'post'
       return factory(this._route(), method, props, {}, headers, cb)
     },
     [del || 'del']: function(cb = noop) {
@@ -176,10 +178,11 @@ function buildResources(endpoints, commonVersions) {
     }
 
     if (resource.versions) {
-      [].concat(resource.versions).reduce((iden, v, k) => {
-        iden[k] = v
-        return iden
-      }, versions)
+      [].concat(resource.versions)
+        .reduce((iden, v, k) => {
+          iden[k] = v
+          return iden
+        }, versions)
     }
 
     // configured endpoints are represented similarly to simple endpoints
@@ -205,7 +208,9 @@ function cleanroot(root) {
     return root.trim()
   }
 
-  return dropWhile(root.trim().split('').reverse(), char => char === '/')
+  return dropWhile(root.trim()
+      .split('')
+      .reverse(), char => char === '/')
     .reverse()
     .join('')
 }
@@ -323,9 +328,12 @@ function chooseDependencies(config) {
 
   if (!promise) {
     try {
-      promiseLib = require('es6-promise').Promise
+      promiseLib = require('es6-promise')
+        .Promise
     } catch (er) {
-      throw new Error('expected Promise to be defined or es6-promise to be installed, but both are missing')
+      throw new Error(
+        'expected Promise to be defined or es6-promise to be installed, but both are missing'
+      )
     }
   }
 
@@ -334,7 +342,9 @@ function chooseDependencies(config) {
       const superagent = require('superagent')
       agent = requestFactory(superagent, promiseLib)
     } catch (er) {
-      throw new Error('expected request function to be defined or superagent to be installed, but both are missing')
+      throw new Error(
+        'expected request function to be defined or superagent to be installed, but both are missing'
+      )
     }
   }
 
@@ -379,7 +389,9 @@ function place(map, paths) {
  * @param {Array.<Array.<string>>} ls array of arrays
  * @return {Object} hierarchy of resources
  */
-function normalize(ls = [ [] ]) {
+function normalize(ls = [
+  []
+]) {
   if (!ls.length) return {}
 
   const out = {}
@@ -390,8 +402,8 @@ function normalize(ls = [ [] ]) {
 
 
 export default module.exports = (config) => {
-  const {endpoints, versions = []} = config
-  const {logger = noopLogger} = config
+  const { endpoints, versions = [] } = config
+  const { logger = noopLogger } = config
 
   validateConfig(config)
 
@@ -400,11 +412,13 @@ export default module.exports = (config) => {
   // we want to work with an array of strings, but versions may be either an array or a single stirng 
   const commonVersions = compact([].concat(versions))
 
-  let [simpleResources, resources, ] = buildResources(endpoints, commonVersions)
+  let [simpleResources, resources, ] = buildResources(endpoints,
+    commonVersions)
 
   // this removes empty arrays from `resources`.  empty arrays may arise from
   // a user inputing an empty string endpoint.
-  let all = resources.filter(ls => ls.length).slice()
+  let all = resources.filter(ls => ls.length)
+    .slice()
 
   // Array.prototype.push.apply(all, versioned)
   all = all.concat(simpleResources)
