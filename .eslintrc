@@ -1,20 +1,21 @@
 {
-    "extends": "recommended",
-    "plugins": [
-        "standard"
-    ],
-    "globals": {
-        "expect": true,
-        "sinon": true
-    },
-    "env": {
-        "browser": true,
-        "mocha": true
-    },
-    "rules": {
-      "comma-dangle": 0
-    },
-    "parserOptions": {
-      "ecmaVerion": 6
-    }
+    "extends": "standard",
+        "plugins": [
+            "standard"
+        ],
+        "globals": {
+            "expect": true,
+            "sinon": true
+        },
+        "env": {
+            "browser": true,
+            "mocha": true
+        },
+        "rules": {
+            "comma-dangle": 0,
+            "space-before-function-paren": 0,
+        },
+        "parserOptions": {
+            "ecmaVerion": 6
+        }
 }

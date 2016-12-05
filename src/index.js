@@ -4,6 +4,7 @@ import isObject from 'lodash.isobject'
 import noopLogger from 'noop-logger'
 import pick from 'lodash.pick'
 import size from 'lodash.size'
+import matches from 'lodash.matches'
 
 const DEFAULT_HEADERS = {
   'Content-Type': 'application/json',
@@ -105,15 +106,8 @@ function verbFactory(opts, request) {
  * @return {Object}          an object containing methods for interacting with the API
  */
 function proto(resource, opts) {
-  const {
-    altMethodNames = {}, request, headers,
-  } = opts
-  const {get,
-    create,
-    update,
-    del,
-    list,
-  } = altMethodNames
+  const { altMethodNames = {}, request, headers, } = opts
+  const {get, create, update, del, list, } = altMethodNames
 
   const factory = verbFactory(opts, request)
 
@@ -210,7 +204,9 @@ function cleanroot(root) {
 
   return dropWhile(root.trim()
       .split('')
-      .reverse(), char => char === '/')
+      .reverse(),
+      matches('/')
+    )
     .reverse()
     .join('')
 }
@@ -298,10 +294,7 @@ function build(conf) {
  * @return {void}
  */
 function validateConfig(config) {
-  const {
-    endpoints,
-    root = ''
-  } = config
+  const { endpoints, root = '' } = config
 
   if (!root || !root.trim()) {
     throw new Error('api root is required')
@@ -319,33 +312,13 @@ function validateConfig(config) {
  * @return {(Promise, request)}
  */
 function chooseDependencies(config) {
-  const {
-    logger = noopLogger, promise, request
-  } = config
+  const { logger = noopLogger, promise = Promise, request } = config
 
   let agent = request
   let promiseLib = promise
 
-  if (!promise) {
-    try {
-      promiseLib = require('es6-promise')
-        .Promise
-    } catch (er) {
-      throw new Error(
-        'expected Promise to be defined or es6-promise to be installed, but both are missing'
-      )
-    }
-  }
-
   if (!request) {
-    try {
-      const superagent = require('superagent')
-      agent = requestFactory(superagent, promiseLib)
-    } catch (er) {
-      throw new Error(
-        'expected request function to be defined or superagent to be installed, but both are missing'
-      )
-    }
+    throw new Error('Request handler must be provided')
   }
 
   return [promiseLib, agent]
@@ -389,9 +362,7 @@ function place(map, paths) {
  * @param {Array.<Array.<string>>} ls array of arrays
  * @return {Object} hierarchy of resources
  */
-function normalize(ls = [
-  []
-]) {
+function normalize(ls = []) {
   if (!ls.length) return {}
 
   const out = {}

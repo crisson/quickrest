@@ -112,11 +112,6 @@ function(req, res, next){
 
     npm install quickrest --save
 
-#### peerDependencies
-* [superagent](https://github.com/visionmedia/superagent)
-* [es6-promise](https://github.com/stefanpenner/es6-promise)
-
-
 If you're indifferent to the http and Promise libraries used, this lib will attempt to use
 `superagent` and `es6-promise`, respectively.  These libraries are considered peer dependencies, so it's your responsibility to install them alongside this lib.
 
