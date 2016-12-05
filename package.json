@@ -25,6 +25,7 @@
     "lodash.compact": "3.0.1",
     "lodash.dropwhile": "4.4.0",
     "lodash.isobject": "3.0.2",
+    "lodash.matches": "4.6.0",
     "lodash.pick": "4.2.1",
     "lodash.size": "4.0.6",
     "noop-logger": "0.1.1"
