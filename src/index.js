@@ -17,40 +17,6 @@ const DEFAULT_HEADERS = {
  */
 function noop() {}
 
-function requestFactory(superagent, PromiseLib) {
-  return function(url, method, props = {}, query = {}, headers, cb) {
-    const req = superagent[method](url)
-      .set(headers)
-      .query(query)
-      .send(props)
-
-    if (!PromiseLib) {
-      return req.end((err, res) => {
-        const out = {
-          status: res.status,
-          model: res.body
-        }
-        return cb(err, out)
-      })
-    }
-
-    return new PromiseLib((resolve, reject) => {
-      req.end((err, res) => {
-        const out = {
-          status: res.status,
-          model: res.body
-        }
-        if (cb) {
-          cb(err, out)
-        }
-
-        if (err) return reject(err)
-        resolve(out)
-      })
-    })
-  }
-}
-
 /**
  * Returns a function that defines the response handler for a RESTful verb (i.e., get, create, etc.)
  * @param {Object} opts the config options provided by user amended to include a valid Promise lib and request function
@@ -69,7 +35,7 @@ function verbFactory(opts, request) {
     // if opts.beforeEach is not defined, we execute the default request flow
     if (!opts.beforeEach) {
       if (!cb) {
-        return new opts.promise(resolve => {
+        return new opts.promise(resolve => { // eslint-disable-line new-cap
           return processed({})
         })
       }
@@ -107,7 +73,7 @@ function verbFactory(opts, request) {
  */
 function proto(resource, opts) {
   const { altMethodNames = {}, request, headers, } = opts
-  const {get, create, update, del, list, } = altMethodNames
+  const { create, update, del, list, get, } = altMethodNames
 
   const factory = verbFactory(opts, request)
 
@@ -212,9 +178,10 @@ function cleanroot(root) {
 }
 
 /**
- * Returns a function that recursively builds the rest api object hierarchy.  
+ * Returns a function that recursively builds the rest api object hierarchy.
  *
- * The object built includes the REST resource names as functions.  Those functions have function-properties consisting of the REST methods (i.e. get, create, etc). The resourceful functions, when invoked return a new object hiearchy of their subresources (e.g, api.users(23).posts...).
+ * The object built includes the REST resource names as functions.
+ * Those functions have function-properties consisting of the REST methods (i.e. get, create, etc). The resourceful functions, when invoked return a new object hiearchy of their subresources (e.g, api.users(23).posts...).
  * @param  {Object} conf
  * @return {Function}
  */
@@ -321,7 +288,7 @@ function chooseDependencies(config) {
     throw new Error('Request handler must be provided')
   }
 
-  return [promiseLib, agent]
+  return [promiseLib, agent, logger]
 }
 
 /**
@@ -341,8 +308,6 @@ function place(map, paths) {
     if (!node || node === 1) {
       node = {}
       map[head] = node
-
-      return place(node, rest)
     }
 
     return place(node, rest)
@@ -371,7 +336,6 @@ function normalize(ls = []) {
   return out
 }
 
-
 module.exports = (config) => {
   const { endpoints, versions = [] } = config
   const { logger = noopLogger } = config
@@ -380,10 +344,11 @@ module.exports = (config) => {
 
   const [promiseLib, requestLib] = chooseDependencies(config)
 
-  // we want to work with an array of strings, but versions may be either an array or a single stirng 
+  // we want to work with an array of strings, but versions may be either an array
+  // or a single stirng
   const commonVersions = compact([].concat(versions))
 
-  let [simpleResources, resources, ] = buildResources(endpoints,
+  let [simpleResources, resources] = buildResources(endpoints,
     commonVersions)
 
   // this removes empty arrays from `resources`.  empty arrays may arise from
