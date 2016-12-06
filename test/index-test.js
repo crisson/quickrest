@@ -197,6 +197,32 @@ describe('quickrest', function() {
       ])
     })
 
+    it('for patch', () => {
+      const body = {
+        title: 'blog post',
+      }
+
+      request.returns(Promise.resolve({
+        model: body,
+        status: 200
+      }))
+
+      api = quickrest({ root, endpoints, request, })
+
+      const promise = api.users(9000)
+        .posts.patch(body)
+
+      return PromiseLib.all([
+        expect(request)
+        .to.have.been.calledWith(
+          'https://api.example.com/users/9000/posts'),
+        expect(promise)
+        .to.eventually.have.property('model')
+        .that.eql(body),
+        expect(promise)
+        .to.eventually.have.property('status', 200),
+      ])
+    })
     it('for put', () => {
       const body = {
         title: 'blog post',

@@ -221,6 +221,7 @@ const api = quickrest({
    */
   altMethodNames: {
     create: 'make',
+    patch: 'mend',
     del: 'remove'
     get: 'fetch',
     list: 'all',

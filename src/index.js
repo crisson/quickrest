@@ -73,12 +73,17 @@ function verbFactory(opts, request) {
  */
 function proto(resource, opts) {
   const { altMethodNames = {}, request, headers, } = opts
-  const { create, update, del, list, get, } = altMethodNames
+  const { patch, create, update, del, list, get, } = altMethodNames
 
   const factory = verbFactory(opts, request)
 
   const out = {
     [create || 'create']: function(props, cb = noop) {
+      const method = resource.props && resource.props.createMethod ||
+        'post'
+      return factory(this._route(), method, props, {}, headers, cb)
+    },
+    [patch || 'patch']: function(props, cb = noop) {
       const method = resource.props && resource.props.createMethod ||
         'post'
       return factory(this._route(), method, props, {}, headers, cb)
