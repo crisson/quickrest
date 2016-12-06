@@ -84,9 +84,7 @@ function proto(resource, opts) {
       return factory(this._route(), method, props, {}, headers, cb)
     },
     [patch || 'patch']: function(props, cb = noop) {
-      const method = resource.props && resource.props.createMethod ||
-        'post'
-      return factory(this._route(), method, props, {}, headers, cb)
+      return factory(this._route(), 'patch', props, {}, headers, cb)
     },
     [del || 'del']: function(cb = noop) {
       return factory(this._route(), 'delete', {}, {}, headers, cb)
