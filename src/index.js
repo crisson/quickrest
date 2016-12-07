@@ -81,7 +81,13 @@ function proto(resource, opts) {
     [create || 'create']: function(props, cb = noop) {
       const method = resource.props && resource.props.createMethod ||
         'post'
-      return factory(this._route(), method, props, {}, headers, cb)
+      let p = props
+      let done = cb
+      if (typeof props === 'function') {
+        p = {}
+        done = props
+      }
+      return factory(this._route(), method, p, {}, headers, done)
     },
     [patch || 'patch']: function(props, cb = noop) {
       return factory(this._route(), 'patch', props, {}, headers, cb)
@@ -93,13 +99,31 @@ function proto(resource, opts) {
       return factory(this._route(), 'delete', {}, {}, headers, cb)
     },
     [get || 'get']: function(query, cb = noop) {
-      return factory(this._route(), 'get', {}, query, headers, cb)
+      let q = query
+      let done = cb
+      if (typeof query === 'function') {
+        q = {}
+        done = query
+      }
+      return factory(this._route(), 'get', {}, q, headers, done)
     },
     [list || 'list']: function(query, cb = noop) {
-      return factory(this._route(), 'get', {}, query, headers, cb)
+      let q = query
+      let done = cb
+      if (typeof query === 'function') {
+        q = {}
+        done = query
+      }
+      return factory(this._route(), 'get', {}, q, headers, done)
     },
     [update || 'update']: function(props, cb = noop) {
-      return factory(this._route(), 'put', props, {}, headers, cb)
+      let p = props
+      let done = cb
+      if (typeof props === 'function') {
+        p = {}
+        done = props
+      }
+      return factory(this._route(), 'put', p, {}, headers, done)
     },
     getUrl() {
       return this._route()

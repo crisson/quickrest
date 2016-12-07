@@ -272,6 +272,9 @@ describe('quickrest', function() {
       const promise = api.users(9000)
         .posts.list(query)
 
+      expect(request.args[0][3])
+        .to.eql(query)
+
       return PromiseLib.all([
         expect(promise)
         .to.eventually.have.property('model')
@@ -317,8 +320,10 @@ describe('quickrest', function() {
         email: 'jane.smith@example.com',
       }
 
-      request = (url, method, params, query, headers, cb) => cb(
-        null, { model: body, status: 200, })
+      request = (url, method, params, query, headers, cb) => {
+        console.log('here')
+        cb(null, { model: body, status: 200, })
+      }
 
       api = quickrest({ root, endpoints, request, })
 
