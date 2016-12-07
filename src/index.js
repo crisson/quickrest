@@ -92,8 +92,8 @@ function proto(resource, opts) {
     [del || 'delete']: function(cb = noop) {
       return factory(this._route(), 'delete', {}, {}, headers, cb)
     },
-    [get || 'get']: function(cb = noop) {
-      return factory(this._route(), 'get', {}, {}, headers, cb)
+    [get || 'get']: function(query, cb = noop) {
+      return factory(this._route(), 'get', {}, query, headers, cb)
     },
     [list || 'list']: function(query, cb = noop) {
       return factory(this._route(), 'get', {}, query, headers, cb)
