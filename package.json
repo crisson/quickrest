@@ -1,6 +1,6 @@
 {
   "name": "quickrest",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "a simple REST API client library factory",
   "main": "lib/index.js",
   "repository": "https://github.com/crisson/quickrest.git",
