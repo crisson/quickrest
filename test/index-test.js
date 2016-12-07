@@ -215,7 +215,7 @@ describe('quickrest', function() {
       return PromiseLib.all([
         expect(request)
         .to.have.been.calledWith(
-          'https://api.example.com/users/9000/posts'),
+          'https://api.example.com/users/9000/posts', 'patch'),
         expect(promise)
         .to.eventually.have.property('model')
         .that.eql(body),
