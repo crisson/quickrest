@@ -20,9 +20,15 @@ A simple library for quickly building browser-based REST API clients.
 ```javascript
 import quickrest from 'quickrest'
 
+import qwest from 'qwest'
+
 const api = quickrest({
   root: 'https://api.example.com',
   versions: 'v2',
+  request: (url, method, params, query, headers, cb) => {
+    // since qwest returns a promise, there's no need to invoke the cb
+    return qwest[method].bind(qwest, method)(url, params, headers)
+  },
   endpoints: [
     'users',
     'users/posts',
@@ -112,8 +118,7 @@ function(req, res, next){
 
     npm install quickrest --save
 
-If you're indifferent to the http and Promise libraries used, this lib will attempt to use
-`superagent` and `es6-promise`, respectively.  These libraries are considered peer dependencies, so it's your responsibility to install them alongside this lib.
+The `Promise` library used is considered a peer dependencies, so it's your responsibility to install it alongside this lib.
 
 ```
 npm install --save es6-promise superagent
